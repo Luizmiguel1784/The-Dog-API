@@ -2,40 +2,40 @@ const container = document.getElementById("container")
 const buscarcachorros = document.getElementById("buscarCachorros")
 const input = document.getElementById("pesquisa")
 
-async function BuscarCachorros() {
+async function BuscarCachorros(){
 
 const raca = input.value
 
-try {
+try{
 
-const respostaRaca = await fetch(
-`https://api.thedogapi.com/v1/breeds/search?q=${raca}`,
-{
-headers: {
+const resposta = await fetch(`https://api.thedogapi.com/v1/breeds/search?q=${raca}`,
+    {
+        headers:{
 "x-api-key": "live_Hl67QVVE8lOWXGkEVuLTIbcLLxvQTX7OfEfaOzS6kYtSXmwaK5dwFopy7AHzH5ga"
-}
-}
+        }
+    }
 )
 
-const dadosRaca = await respostaRaca.json()
+const dados = await resposta.json()
 
-if(dadosRaca.length === 0){
+// se não encontrar raça
+if(dados.length === 0){
 container.innerHTML = "<p>Raça não encontrada</p>"
 return
 }
 
-const racaDog = dadosRaca[0]
+const dog = dados[0]
 
-const respostaImagem = await fetch(
-`https://api.thedogapi.com/v1/images/search?breed_ids=${racaDog.id}`,
-{
-headers: {
-"x-api-key": "live_Hl67QVVE8lOWXGkEVuLTIbcLLxvQTX7OfEfaOzS6kYtSXmwaK5dwFopy7AHzH5ga"
-}
-}
+// cria a url da imagem
+let imagem = ""
+
+const respostaImage = await fetch(
+`https://api.thedogapi.com/v1/images/${dog.reference_image_id}`
 )
 
-const dadosImagem = await respostaImagem.json()
+const dadosImage = await respostaImage.json()
+
+const image = dadosImage.url
 
 container.innerHTML = ""
 
@@ -43,17 +43,17 @@ const card = document.createElement("div")
 card.classList.add("card")
 
 card.innerHTML = `
-<img src="${dadosImagem[0].url}">
-<h3>${racaDog.name}</h3>
-<p>${racaDog.temperament}</p>
-<p>${racaDog.life_span}</p>
+<img src="${image}" alt="${dog.name}">
+<h3>${dog.name}</h3>
+<p><strong>Temperamento:</strong> ${dog.temperament}</p>
+<p><strong>Expectativa de vida:</strong> ${dog.life_span}</p>
 `
 
 container.appendChild(card)
 
-} catch (erro){
+}catch(erro){
 
-container.innerHTML = "<p>Erro ao buscar dados da API</p>"
+container.innerHTML = "<p>Erro ao conectar com a API</p>"
 console.error(erro)
 
 }
